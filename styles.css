@@ -230,10 +230,16 @@ h2 {
 
 .input-row button,
 #exportButton,
-.import-form button,
-.check-in-button {
+.import-form button {
   border-color: transparent;
   background: var(--ink);
+  color: white;
+  font-weight: 750;
+}
+
+.check-in-button {
+  border-color: transparent;
+  background: var(--green);
   color: white;
   font-weight: 750;
 }

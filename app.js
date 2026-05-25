@@ -32,6 +32,12 @@ async function init() {
   bindEvents();
   render();
   await loadRegistrantsFromSheet();
+  window.setInterval(() => {
+    if (!document.hidden) {
+      loadRegistrantsFromSheet({ silent: true });
+    }
+  }, 15000);
+  window.addEventListener("focus", () => loadRegistrantsFromSheet({ silent: true }));
 }
 
 function bindEvents() {
@@ -179,8 +185,10 @@ function createAttendeeRow(person) {
   return row;
 }
 
-async function loadRegistrantsFromSheet() {
-  elements.importFeedback.textContent = "Loading registrants from Google Sheets...";
+async function loadRegistrantsFromSheet(options = {}) {
+  if (!options.silent) {
+    elements.importFeedback.textContent = "Loading registrants from Google Sheets...";
+  }
 
   try {
     const registrants = await fetchJson(`${API_URL}?action=list`);
@@ -191,11 +199,15 @@ async function loadRegistrantsFromSheet() {
 
     state.people = registrants.map(normalizeRegistrant);
     saveAndRender();
-    elements.importFeedback.textContent = `Loaded ${state.people.length} registrants from Google Sheets.`;
+    if (!options.silent) {
+      elements.importFeedback.textContent = `Loaded ${state.people.length} registrants from Google Sheets.`;
+    }
   } catch (error) {
     console.error(error);
-    elements.importFeedback.textContent =
-      "Could not load Google Sheets. In Apps Script, deploy the web app with access set to Anyone.";
+    if (!options.silent) {
+      elements.importFeedback.textContent =
+        "Could not load Google Sheets. In Apps Script, deploy the web app with access set to Anyone.";
+    }
   }
 }
 
