@@ -1,0 +1,414 @@
+:root {
+  color-scheme: light;
+  --bg: #f6f7f4;
+  --surface: #ffffff;
+  --surface-muted: #eef2ea;
+  --ink: #17201a;
+  --muted: #647067;
+  --line: #d9dfd6;
+  --green: #2f7d54;
+  --amber: #b96519;
+  --red: #b93f3d;
+  --blue: #315f9d;
+  --shadow: 0 20px 60px rgba(23, 32, 26, 0.1);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    linear-gradient(180deg, rgba(47, 125, 84, 0.09), rgba(246, 247, 244, 0) 280px),
+    var(--bg);
+  color: var(--ink);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+button:hover {
+  border-color: #aab6a8;
+  transform: translateY(-1px);
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+input {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+textarea {
+  min-height: 124px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 40px;
+}
+
+.topbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: 1.15rem;
+}
+
+.session-controls {
+  width: min(240px, 100%);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  min-height: 118px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.summary-card span {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 2.4rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.summary-card p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.summary-card.present span {
+  color: var(--green);
+}
+
+.summary-card.late span {
+  color: var(--amber);
+}
+
+.summary-card.absent span {
+  color: var(--red);
+}
+
+.summary-card.total span {
+  color: var(--blue);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow);
+}
+
+.roster-panel {
+  align-self: start;
+  padding: 18px;
+}
+
+.attendance-panel {
+  min-height: 480px;
+  padding: 18px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.panel-header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.icon-button {
+  width: 40px;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.danger {
+  color: var(--red);
+}
+
+.add-form,
+.import-form,
+.tools {
+  margin-bottom: 18px;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 8px;
+}
+
+.input-row button,
+#exportButton,
+.import-form button,
+.check-in-button {
+  border-color: transparent;
+  background: var(--ink);
+  color: white;
+  font-weight: 750;
+}
+
+.import-form button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.form-feedback {
+  min-height: 20px;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.bulk-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.attendance-list {
+  display: grid;
+  gap: 10px;
+}
+
+.attendee-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 116px auto minmax(150px, 0.75fr) 40px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--surface);
+}
+
+.person-block {
+  min-width: 0;
+}
+
+.person-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+}
+
+.status-label {
+  display: inline-block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.check-in-button {
+  min-height: 38px;
+}
+
+.attendee-row[data-status="present"] .check-in-button {
+  background: var(--green);
+}
+
+.status-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 86px);
+  gap: 6px;
+}
+
+.status-controls button {
+  min-height: 36px;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.attendee-row[data-status="present"] [data-status="present"],
+.attendee-row[data-status="late"] [data-status="late"],
+.attendee-row[data-status="absent"] [data-status="absent"] {
+  border-color: transparent;
+  color: #fff;
+}
+
+.attendee-row[data-status="present"] [data-status="present"] {
+  background: var(--green);
+}
+
+.attendee-row[data-status="late"] [data-status="late"] {
+  background: var(--amber);
+}
+
+.attendee-row[data-status="absent"] [data-status="absent"] {
+  background: var(--red);
+}
+
+.note-input {
+  min-height: 38px;
+}
+
+.remove-button {
+  width: 40px;
+  padding: 0;
+  color: var(--red);
+  font-size: 1.35rem;
+}
+
+.empty-state {
+  display: grid;
+  min-height: 300px;
+  place-content: center;
+  border: 1px dashed #bfc9bb;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin-bottom: 6px;
+}
+
+.empty-state p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.is-hidden {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .attendee-row {
+    grid-template-columns: 1fr 40px;
+  }
+
+  .check-in-button,
+  .status-controls,
+  .note-input {
+    grid-column: 1 / -1;
+  }
+
+  .status-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .app-shell {
+    width: min(100% - 20px, 1180px);
+    padding-top: 16px;
+  }
+
+  .summary-grid,
+  .bulk-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    min-height: 92px;
+  }
+}

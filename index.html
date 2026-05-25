@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CheckPoint Attendance</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar" aria-label="Attendance controls">
+        <div>
+          <p class="eyebrow">CheckPoint</p>
+          <h1>Attendance</h1>
+        </div>
+
+        <div class="session-controls">
+          <label for="sessionDate">Session date</label>
+          <input id="sessionDate" type="date" />
+        </div>
+      </section>
+
+      <section class="summary-grid" aria-label="Attendance summary">
+        <article class="summary-card present">
+          <span id="presentCount">0</span>
+          <p>Present</p>
+        </article>
+        <article class="summary-card late">
+          <span id="lateCount">0</span>
+          <p>Late</p>
+        </article>
+        <article class="summary-card absent">
+          <span id="absentCount">0</span>
+          <p>Absent</p>
+        </article>
+        <article class="summary-card total">
+          <span id="totalCount">0</span>
+          <p>Total</p>
+        </article>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel roster-panel" aria-label="Roster management">
+          <div class="panel-header">
+            <h2>Roster</h2>
+            <button id="clearAllButton" class="icon-button danger" title="Clear roster" type="button">x</button>
+          </div>
+
+          <form id="addPersonForm" class="add-form">
+            <label for="personName">Name</label>
+            <div class="input-row">
+              <input id="personName" type="text" placeholder="Add attendee" autocomplete="off" required />
+              <button type="submit">Add</button>
+            </div>
+          </form>
+
+          <form id="importRosterForm" class="import-form">
+            <label for="rosterImport">Pre-load registrants</label>
+            <textarea
+              id="rosterImport"
+              rows="6"
+              placeholder="Paste one name per line"
+            ></textarea>
+            <button type="submit">Import roster</button>
+            <p id="importFeedback" class="form-feedback" role="status"></p>
+          </form>
+
+          <div class="tools">
+            <label for="searchInput">Search</label>
+            <input id="searchInput" type="search" placeholder="Find your name" />
+          </div>
+
+          <div class="bulk-actions" aria-label="Bulk attendance actions">
+            <button id="markAllPresent" type="button">All present</button>
+            <button id="resetSession" type="button">Reset session</button>
+          </div>
+        </aside>
+
+        <section class="panel attendance-panel" aria-label="Attendance list">
+          <div class="panel-header">
+            <div>
+              <h2>Check-ins</h2>
+              <p id="sessionLabel">Today</p>
+            </div>
+            <button id="exportButton" type="button">Export CSV</button>
+          </div>
+
+          <div id="emptyState" class="empty-state">
+            <h3>No one on the roster yet</h3>
+            <p>Add or import registrants to start taking attendance.</p>
+          </div>
+
+          <div id="attendanceList" class="attendance-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <template id="attendeeTemplate">
+      <article class="attendee-row">
+        <div class="person-block">
+          <strong class="person-name"></strong>
+          <span class="status-label"></span>
+        </div>
+
+        <button class="check-in-button" type="button">Check in</button>
+
+        <div class="status-controls" role="group" aria-label="Attendance status">
+          <button type="button" data-status="present">Present</button>
+          <button type="button" data-status="late">Late</button>
+          <button type="button" data-status="absent">Absent</button>
+        </div>
+
+        <input class="note-input" type="text" placeholder="Note" aria-label="Attendance note" />
+        <button class="remove-button" type="button" title="Remove attendee">x</button>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
