@@ -129,7 +129,7 @@ h2 {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -159,10 +159,6 @@ h2 {
 
 .summary-card.present span {
   color: var(--green);
-}
-
-.summary-card.late span {
-  color: var(--amber);
 }
 
 .summary-card.absent span {
@@ -305,7 +301,7 @@ h2 {
 
 .status-controls {
   display: grid;
-  grid-template-columns: repeat(3, 86px);
+  grid-template-columns: repeat(2, 86px);
   gap: 6px;
 }
 
@@ -316,7 +312,6 @@ h2 {
 }
 
 .attendee-row[data-status="present"] [data-status="present"],
-.attendee-row[data-status="late"] [data-status="late"],
 .attendee-row[data-status="absent"] [data-status="absent"] {
   border-color: transparent;
   color: #fff;
@@ -324,10 +319,6 @@ h2 {
 
 .attendee-row[data-status="present"] [data-status="present"] {
   background: var(--green);
-}
-
-.attendee-row[data-status="late"] [data-status="late"] {
-  background: var(--amber);
 }
 
 .attendee-row[data-status="absent"] [data-status="absent"] {
@@ -393,7 +384,7 @@ h2 {
   }
 
   .status-controls {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

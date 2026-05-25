@@ -12,7 +12,6 @@ const elements = {
   exportButton: document.querySelector("#exportButton"),
   importFeedback: document.querySelector("#importFeedback"),
   importRosterForm: document.querySelector("#importRosterForm"),
-  lateCount: document.querySelector("#lateCount"),
   markAllPresent: document.querySelector("#markAllPresent"),
   personName: document.querySelector("#personName"),
   presentCount: document.querySelector("#presentCount"),
@@ -238,6 +237,7 @@ async function fetchJson(url) {
 function normalizeRegistrant(registrant) {
   const email = String(registrant.email || (String(registrant.role || "").includes("@") ? registrant.role : ""));
   const role = String(email ? registrant.school || "" : registrant.role || "");
+  const status = String(registrant.status || "absent").toLowerCase();
 
   return {
     id: String(registrant.id || email || registrant.name || createId()),
@@ -245,7 +245,7 @@ function normalizeRegistrant(registrant) {
     email,
     role,
     school: String(registrant.school || ""),
-    status: String(registrant.status || "absent").toLowerCase(),
+    status: status === "present" ? "present" : "absent",
     checkedInAt: registrant.checkedInAt || "",
     note: String(registrant.note || ""),
   };
@@ -254,14 +254,18 @@ function normalizeRegistrant(registrant) {
 function renderSummary() {
   const counts = state.people.reduce(
     (summary, person) => {
-      summary[person.status] += 1;
+      if (person.status === "present") {
+        summary.present += 1;
+      } else {
+        summary.absent += 1;
+      }
+
       return summary;
     },
-    { present: 0, late: 0, absent: 0 },
+    { present: 0, absent: 0 },
   );
 
   elements.presentCount.textContent = counts.present;
-  elements.lateCount.textContent = counts.late;
   elements.absentCount.textContent = counts.absent;
   elements.totalCount.textContent = state.people.length;
 }
