@@ -30,6 +30,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -53,6 +54,7 @@ button:hover {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -62,6 +64,11 @@ textarea {
 }
 
 input {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+select {
   min-height: 42px;
   padding: 0 12px;
 }
@@ -230,7 +237,8 @@ h2 {
 
 .input-row button,
 #exportButton,
-.import-form button {
+.import-form button,
+.selected-check-in-button {
   border-color: transparent;
   background: var(--ink);
   color: white;
@@ -247,6 +255,12 @@ h2 {
 .import-form button {
   width: 100%;
   margin-top: 8px;
+}
+
+.selected-check-in-button {
+  width: 100%;
+  margin-top: 8px;
+  background: var(--green);
 }
 
 .form-feedback {

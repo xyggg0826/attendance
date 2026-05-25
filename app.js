@@ -16,9 +16,10 @@ const elements = {
   personName: document.querySelector("#personName"),
   presentCount: document.querySelector("#presentCount"),
   absentCount: document.querySelector("#absentCount"),
+  registrantSelect: document.querySelector("#registrantSelect"),
   resetSession: document.querySelector("#resetSession"),
   rosterImport: document.querySelector("#rosterImport"),
-  searchInput: document.querySelector("#searchInput"),
+  selectedCheckIn: document.querySelector("#selectedCheckIn"),
   sessionDate: document.querySelector("#sessionDate"),
   sessionLabel: document.querySelector("#sessionLabel"),
   template: document.querySelector("#attendeeTemplate"),
@@ -96,7 +97,23 @@ function bindEvents() {
     saveAndRender();
   });
 
-  elements.searchInput.addEventListener("input", render);
+  elements.registrantSelect.addEventListener("change", render);
+
+  elements.selectedCheckIn.addEventListener("click", async () => {
+    const person = getSelectedRegistrant();
+
+    if (!person) {
+      elements.importFeedback.textContent = "Choose your name before checking in.";
+      return;
+    }
+
+    elements.selectedCheckIn.disabled = true;
+    await checkInPerson(person, {
+      status: "present",
+      checkedInAt: new Date().toISOString(),
+    });
+    elements.selectedCheckIn.disabled = false;
+  });
 
   elements.markAllPresent.addEventListener("click", () => {
     state.people = state.people.map((person) => ({ ...person, status: "present" }));
@@ -126,10 +143,9 @@ function bindEvents() {
 }
 
 function render() {
-  const searchTerm = elements.searchInput.value.trim().toLowerCase();
-  const visiblePeople = state.people.filter((person) =>
-    person.name.toLowerCase().includes(searchTerm),
-  );
+  renderRegistrantSelect();
+  const selectedId = elements.registrantSelect.value;
+  const visiblePeople = getSortedPeople().filter((person) => !selectedId || person.id === selectedId);
 
   elements.attendanceList.replaceChildren();
 
@@ -141,6 +157,21 @@ function render() {
   elements.attendanceList.classList.toggle("is-hidden", state.people.length === 0);
   elements.sessionLabel.textContent = formatDate(state.sessionDate);
   renderSummary();
+}
+
+function renderRegistrantSelect() {
+  const selectedId = elements.registrantSelect.value;
+  const options = [new Option("Choose your name", "")];
+  const duplicateNames = getDuplicateNameSet();
+
+  getSortedPeople().forEach((person) => {
+    options.push(new Option(formatRegistrantOption(person, duplicateNames), person.id));
+  });
+
+  elements.registrantSelect.replaceChildren(...options);
+  elements.registrantSelect.value = state.people.some((person) => person.id === selectedId)
+    ? selectedId
+    : "";
 }
 
 function createAttendeeRow(person) {
@@ -183,6 +214,10 @@ function createAttendeeRow(person) {
   });
 
   return row;
+}
+
+function getSelectedRegistrant() {
+  return state.people.find((person) => person.id === elements.registrantSelect.value);
 }
 
 async function loadRegistrantsFromSheet(options = {}) {
@@ -238,18 +273,31 @@ async function checkInPerson(person, changes) {
 
 async function fetchJson(url) {
   const response = await fetch(url);
+  const text = await response.text();
 
   if (!response.ok) {
     throw new Error(`Request failed with status ${response.status}`);
   }
 
-  return response.json();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error("Google Apps Script returned a non-JSON error page.");
+  }
 }
 
 function normalizeRegistrant(registrant) {
   const email = String(registrant.email || (String(registrant.role || "").includes("@") ? registrant.role : ""));
   const role = String(email ? registrant.school || "" : registrant.role || "");
-  const status = String(registrant.status || "absent").toLowerCase();
+  const status = String(
+    registrant.status || registrant.Status || registrant.attendanceStatus || "absent",
+  ).toLowerCase();
+  const checkedInAt =
+    registrant.checkedInAt ||
+    registrant.CheckedInAt ||
+    registrant["Checked In At"] ||
+    registrant["checked in at"] ||
+    "";
 
   return {
     id: String(registrant.id || email || registrant.name || createId()),
@@ -258,7 +306,7 @@ function normalizeRegistrant(registrant) {
     role,
     school: String(registrant.school || ""),
     status: status === "present" ? "present" : "absent",
-    checkedInAt: registrant.checkedInAt || "",
+    checkedInAt,
     note: String(registrant.note || ""),
   };
 }
@@ -280,6 +328,31 @@ function renderSummary() {
   elements.presentCount.textContent = counts.present;
   elements.absentCount.textContent = counts.absent;
   elements.totalCount.textContent = state.people.length;
+}
+
+function getSortedPeople() {
+  return [...state.people].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+  );
+}
+
+function getDuplicateNameSet() {
+  const counts = state.people.reduce((summary, person) => {
+    const name = normalizeName(person.name);
+    summary.set(name, (summary.get(name) || 0) + 1);
+    return summary;
+  }, new Map());
+
+  return new Set([...counts].filter(([, count]) => count > 1).map(([name]) => name));
+}
+
+function formatRegistrantOption(person, duplicateNames) {
+  const isDuplicate = duplicateNames.has(normalizeName(person.name));
+  const detail = isDuplicate ? person.email || person.role || person.school : "";
+  const status = person.status === "present" ? " - checked in" : "";
+  const suffix = isDuplicate ? ` (${[detail, `ID ${person.id}`].filter(Boolean).join(", ")})` : "";
+
+  return `${person.name}${suffix}${status}`;
 }
 
 function updatePerson(id, changes, shouldRender = true) {
