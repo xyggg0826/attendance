@@ -302,7 +302,15 @@ function normalizeRegistrant(registrant) {
     "school",
     "School",
   );
-  const attendedValue = getField(registrant, "Attended", "attended", "status", "Status");
+  const attendedValue = getField(
+    registrant,
+    "Attended",
+    "attended",
+    "checkedInAt",
+    "Checked In At",
+    "status",
+    "Status",
+  );
   const status = String(
     isChecked(attendedValue) ? "present" : "absent",
   ).toLowerCase();
