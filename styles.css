@@ -281,11 +281,23 @@ h2 {
   gap: 10px;
 }
 
+.attendance-header,
 .attendee-row {
   display: grid;
-  grid-template-columns: minmax(150px, 1fr) 116px auto minmax(150px, 0.75fr) 40px;
+  grid-template-columns: minmax(180px, 1.2fr) 90px minmax(180px, 1fr) 104px 116px auto minmax(120px, 0.6fr) 40px;
   align-items: center;
   gap: 12px;
+}
+
+.attendance-header {
+  padding: 0 12px 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.attendee-row {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
@@ -309,6 +321,21 @@ h2 {
   margin-top: 5px;
   color: var(--muted);
   font-size: 0.86rem;
+}
+
+.dbn-value,
+.school-value,
+.attended-value {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attended-value {
+  color: var(--muted);
+  font-weight: 750;
 }
 
 .check-in-button {
@@ -397,6 +424,13 @@ h2 {
     grid-template-columns: 1fr 40px;
   }
 
+  .attendance-header {
+    display: none;
+  }
+
+  .dbn-value,
+  .school-value,
+  .attended-value,
   .check-in-button,
   .status-controls,
   .note-input {

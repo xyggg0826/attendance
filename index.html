@@ -91,6 +91,12 @@
             <p>Add or import registrants to start taking attendance.</p>
           </div>
 
+          <div id="attendanceHeader" class="attendance-header" aria-hidden="true">
+            <span>Your Full Name</span>
+            <span>DBN</span>
+            <span>School/District</span>
+            <span>Attended</span>
+          </div>
           <div id="attendanceList" class="attendance-list"></div>
         </section>
       </section>
@@ -100,9 +106,11 @@
       <article class="attendee-row">
         <div class="person-block">
           <strong class="person-name"></strong>
-          <span class="status-label"></span>
         </div>
 
+        <span class="dbn-value"></span>
+        <span class="school-value"></span>
+        <span class="attended-value"></span>
         <button class="check-in-button" type="button">Check in</button>
 
         <div class="status-controls" role="group" aria-label="Attendance status">

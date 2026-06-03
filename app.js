@@ -6,6 +6,7 @@ const state = loadState();
 
 const elements = {
   addPersonForm: document.querySelector("#addPersonForm"),
+  attendanceHeader: document.querySelector("#attendanceHeader"),
   attendanceList: document.querySelector("#attendanceList"),
   clearAllButton: document.querySelector("#clearAllButton"),
   emptyState: document.querySelector("#emptyState"),
@@ -154,6 +155,7 @@ function render() {
   });
 
   elements.emptyState.classList.toggle("is-hidden", state.people.length > 0);
+  elements.attendanceHeader.classList.toggle("is-hidden", state.people.length === 0);
   elements.attendanceList.classList.toggle("is-hidden", state.people.length === 0);
   elements.sessionLabel.textContent = formatDate(state.sessionDate);
   renderSummary();
@@ -176,11 +178,13 @@ function renderRegistrantSelect() {
 
 function createAttendeeRow(person) {
   const row = elements.template.content.firstElementChild.cloneNode(true);
-  const statusText = getStatusText(person);
 
   row.dataset.status = person.status;
   row.querySelector(".person-name").textContent = person.name;
-  row.querySelector(".status-label").textContent = statusText;
+  row.querySelector(".dbn-value").textContent = person.dbn || "-";
+  row.querySelector(".school-value").textContent = person.school || "-";
+  row.querySelector(".attended-value").textContent =
+    person.status === "present" ? "Checked" : "Not checked";
   row.querySelector(".note-input").value = person.note;
 
   row.querySelector(".check-in-button").addEventListener("click", async () => {
@@ -254,7 +258,9 @@ async function checkInPerson(person, changes) {
       action: "checkin",
       id: person.id,
       name: person.name,
-      email: person.email || "",
+      dbn: person.dbn || "",
+      school: person.school || "",
+      attended: "true",
     });
     const result = await fetchJson(`${API_URL}?${params.toString()}`);
 
@@ -287,10 +293,18 @@ async function fetchJson(url) {
 }
 
 function normalizeRegistrant(registrant) {
-  const email = String(registrant.email || (String(registrant.role || "").includes("@") ? registrant.role : ""));
-  const role = String(email ? registrant.school || "" : registrant.role || "");
+  const name = getField(registrant, "Your Full Name", "fullName", "name", "Name");
+  const dbn = getField(registrant, "DBN", "dbn");
+  const school = getField(
+    registrant,
+    "School Name or District Name",
+    "schoolNameOrDistrictName",
+    "school",
+    "School",
+  );
+  const attendedValue = getField(registrant, "Attended", "attended", "status", "Status");
   const status = String(
-    registrant.status || registrant.Status || registrant.attendanceStatus || "absent",
+    isChecked(attendedValue) ? "present" : "absent",
   ).toLowerCase();
   const checkedInAt =
     registrant.checkedInAt ||
@@ -300,15 +314,31 @@ function normalizeRegistrant(registrant) {
     "";
 
   return {
-    id: String(registrant.id || email || registrant.name || createId()),
-    name: String(registrant.name || "Unnamed registrant"),
-    email,
-    role,
-    school: String(registrant.school || ""),
+    id: String(registrant.id || registrant.ID || [name, dbn, school].filter(Boolean).join("|") || createId()),
+    name: String(name || "Unnamed registrant"),
+    dbn: String(dbn || ""),
+    school: String(school || ""),
     status: status === "present" ? "present" : "absent",
     checkedInAt,
     note: String(registrant.note || ""),
   };
+}
+
+function getField(source, ...keys) {
+  for (const key of keys) {
+    if (source[key] !== undefined && source[key] !== null) {
+      return source[key];
+    }
+  }
+
+  return "";
+}
+
+function isChecked(value) {
+  if (value === true) return true;
+
+  const normalized = String(value || "").trim().toLowerCase();
+  return ["true", "yes", "y", "checked", "present", "1"].includes(normalized);
 }
 
 function renderSummary() {
@@ -348,7 +378,7 @@ function getDuplicateNameSet() {
 
 function formatRegistrantOption(person, duplicateNames) {
   const isDuplicate = duplicateNames.has(normalizeName(person.name));
-  const detail = isDuplicate ? person.email || person.role || person.school : "";
+  const detail = isDuplicate ? person.dbn || person.school : "";
   const status = person.status === "present" ? " - checked in" : "";
   const suffix = isDuplicate ? ` (${[detail, `ID ${person.id}`].filter(Boolean).join(", ")})` : "";
 
@@ -369,12 +399,13 @@ function updatePerson(id, changes, shouldRender = true) {
 
 function exportCsv() {
   const rows = [
-    ["Date", "Name", "Status", "Checked In At", "Note"],
+    ["Date", "Your Full Name", "DBN", "School Name or District Name", "Attended", "Note"],
     ...state.people.map((person) => [
       state.sessionDate,
       person.name,
-      person.status,
-      person.checkedInAt ? formatTime(person.checkedInAt) : "",
+      person.dbn,
+      person.school,
+      person.status === "present" ? "TRUE" : "FALSE",
       person.note,
     ]),
   ];
