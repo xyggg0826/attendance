@@ -251,7 +251,7 @@ async function loadRegistrantsFromSheet(options = {}) {
 }
 
 async function checkInPerson(person, changes) {
-  updatePerson(person.id, changes);
+  elements.importFeedback.textContent = "Saving check-in to Google Sheets...";
 
   try {
     const params = new URLSearchParams({
@@ -268,12 +268,13 @@ async function checkInPerson(person, changes) {
       throw new Error(result.error || "Google Sheets did not check in this registrant.");
     }
 
+    updatePerson(person.id, changes);
     elements.importFeedback.textContent = "Check-in saved to Google Sheets.";
     await loadRegistrantsFromSheet();
   } catch (error) {
     console.error(error);
     elements.importFeedback.textContent =
-      "Check-in saved locally, but Google Sheets could not be updated. Check the Apps Script deployment access.";
+      `Google Sheets did not save this check-in: ${error.message}`;
   }
 }
 
