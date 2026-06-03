@@ -73,6 +73,13 @@ select {
   padding: 0 12px;
 }
 
+#registrantSelect {
+  min-height: 56px;
+  color: var(--blue);
+  font-size: 1.35rem;
+  font-weight: 850;
+}
+
 textarea {
   min-height: 124px;
   padding: 10px 12px;
