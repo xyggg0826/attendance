@@ -225,6 +225,13 @@ async function loadRegistrantsFromSheet(options = {}) {
 }
 
 async function checkInPerson(person, changes) {
+  if (!isValidSheetRowId(person.id)) {
+    elements.importFeedback.textContent =
+      "This registrant is not synced with Google Sheets yet. Refreshing the roster...";
+    await loadRegistrantsFromSheet();
+    return;
+  }
+
   elements.importFeedback.textContent = "Saving check-in to Google Sheets...";
 
   try {
@@ -463,7 +470,12 @@ function saveAndRender() {
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({
+      sessionDate: state.sessionDate,
+    }),
+  );
 }
 
 function loadState() {
@@ -477,7 +489,7 @@ function loadState() {
     return {
       ...fallback,
       ...saved,
-      people: Array.isArray(saved?.people) ? saved.people : [],
+      people: [],
     };
   } catch {
     return fallback;
@@ -534,6 +546,11 @@ function createId() {
   }
 
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function isValidSheetRowId(id) {
+  const rowNumber = Number(id);
+  return Number.isInteger(rowNumber) && rowNumber >= 2;
 }
 
 function formatDate(dateText) {
