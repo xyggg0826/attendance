@@ -43,54 +43,28 @@ async function init() {
 }
 
 function bindEvents() {
-  elements.addPersonForm.addEventListener("submit", (event) => {
+  elements.addPersonForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const name = elements.personName.value.trim();
 
     if (!name) return;
 
-    state.people.push({
-      id: createId(),
-      name,
-      status: "absent",
-      note: "",
-      checkedInAt: "",
-    });
-
+    await addPersonToSheet({ name });
     elements.personName.value = "";
-    elements.importFeedback.textContent =
-      "Added locally. Add this person to Google Sheets to share them across devices.";
-    saveAndRender();
   });
 
-  elements.importRosterForm.addEventListener("submit", (event) => {
+  elements.importRosterForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const names = parseRosterImport(elements.rosterImport.value);
-    const knownNames = new Set(state.people.map((person) => normalizeName(person.name)));
-    const newPeople = [];
 
-    names.forEach((name) => {
-      const normalizedName = normalizeName(name);
+    if (!names.length) {
+      elements.importFeedback.textContent = "Paste at least one name to import.";
+      return;
+    }
 
-      if (knownNames.has(normalizedName)) return;
-
-      knownNames.add(normalizedName);
-      newPeople.push({
-        id: createId(),
-        name,
-        status: "absent",
-        note: "",
-        checkedInAt: "",
-      });
-    });
-
-    state.people.push(...newPeople);
+    elements.importFeedback.textContent = "Adding registrants to Google Sheets...";
+    await addManyPeopleToSheet(names);
     elements.rosterImport.value = "";
-    elements.importFeedback.textContent = `${getImportMessage(
-      names.length,
-      newPeople.length,
-    )} Add imported names to Google Sheets to share them across devices.`;
-    saveAndRender();
   });
 
   elements.sessionDate.addEventListener("change", () => {
@@ -276,6 +250,55 @@ async function checkInPerson(person, changes) {
     elements.importFeedback.textContent =
       `Google Sheets did not save this check-in: ${error.message}`;
   }
+}
+
+async function addPersonToSheet(person) {
+  elements.importFeedback.textContent = "Adding registrant to Google Sheets...";
+
+  try {
+    const params = new URLSearchParams({
+      action: "add",
+      name: person.name,
+      dbn: person.dbn || "",
+      school: person.school || "",
+    });
+    const result = await fetchJson(`${API_URL}?${params.toString()}`);
+
+    if (result?.success === false) {
+      throw new Error(result.error || "Google Sheets did not add this registrant.");
+    }
+
+    elements.importFeedback.textContent = "Registrant added to Google Sheets.";
+    await loadRegistrantsFromSheet();
+  } catch (error) {
+    console.error(error);
+    elements.importFeedback.textContent = `Google Sheets did not add this registrant: ${error.message}`;
+  }
+}
+
+async function addManyPeopleToSheet(names) {
+  let added = 0;
+
+  for (const name of names) {
+    try {
+      const params = new URLSearchParams({
+        action: "add",
+        name,
+        dbn: "",
+        school: "",
+      });
+      const result = await fetchJson(`${API_URL}?${params.toString()}`);
+
+      if (result?.success !== false) {
+        added += 1;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  elements.importFeedback.textContent = `Added ${added} of ${names.length} registrants to Google Sheets.`;
+  await loadRegistrantsFromSheet({ silent: true });
 }
 
 async function fetchJson(url) {
