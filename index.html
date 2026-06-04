@@ -92,10 +92,11 @@
           </div>
 
           <div id="attendanceHeader" class="attendance-header" aria-hidden="true">
-            <span>Your Full Name</span>
-            <span>DBN</span>
-            <span>School/District</span>
-            <span>Attended</span>
+            <span>Name</span>
+            <span>School</span>
+            <span>Status</span>
+            <span>Checked In</span>
+            <span>Note</span>
           </div>
           <div id="attendanceList" class="attendance-list"></div>
         </section>
@@ -108,9 +109,9 @@
           <strong class="person-name"></strong>
         </div>
 
-        <span class="dbn-value"></span>
         <span class="school-value"></span>
-        <span class="attended-value"></span>
+        <span class="status-value"></span>
+        <span class="checked-in-value"></span>
         <button class="check-in-button" type="button">Check in</button>
 
         <div class="status-controls" role="group" aria-label="Attendance status">
@@ -118,7 +119,7 @@
           <button type="button" data-status="absent">Absent</button>
         </div>
 
-        <input class="note-input" type="text" placeholder="Note" aria-label="Attendance note" />
+        <input class="note-input" type="text" placeholder="Note" aria-label="Note" />
         <button class="remove-button" type="button" title="Remove attendee">x</button>
       </article>
     </template>

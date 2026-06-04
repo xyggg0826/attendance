@@ -155,10 +155,10 @@ function createAttendeeRow(person) {
 
   row.dataset.status = person.status;
   row.querySelector(".person-name").textContent = person.name;
-  row.querySelector(".dbn-value").textContent = person.dbn || "-";
   row.querySelector(".school-value").textContent = person.school || "-";
-  row.querySelector(".attended-value").textContent =
-    person.status === "present" ? "Checked" : "Not checked";
+  row.querySelector(".status-value").textContent = getSheetStatusText(person);
+  row.querySelector(".checked-in-value").textContent =
+    person.status === "present" ? "Yes" : "No";
   row.querySelector(".note-input").value = person.note;
 
   row.querySelector(".check-in-button").addEventListener("click", async () => {
@@ -239,9 +239,9 @@ async function checkInPerson(person, changes) {
       action: "checkin",
       id: person.id,
       name: person.name,
-      dbn: person.dbn || "",
       school: person.school || "",
-      attended: "true",
+      status: getSheetStatusText({ ...person, status: "present" }),
+      checkedIn: "true",
     });
     const result = await fetchJson(`${API_URL}?${params.toString()}`);
 
@@ -266,8 +266,10 @@ async function addPersonToSheet(person) {
     const params = new URLSearchParams({
       action: "add",
       name: person.name,
-      dbn: person.dbn || "",
       school: person.school || "",
+      status: "",
+      checkedIn: "false",
+      note: "",
     });
     const result = await fetchJson(`${API_URL}?${params.toString()}`);
 
@@ -291,8 +293,10 @@ async function addManyPeopleToSheet(names) {
       const params = new URLSearchParams({
         action: "add",
         name,
-        dbn: "",
         school: "",
+        status: "",
+        checkedIn: "false",
+        note: "",
       });
       const result = await fetchJson(`${API_URL}?${params.toString()}`);
 
@@ -324,28 +328,22 @@ async function fetchJson(url) {
 }
 
 function normalizeRegistrant(registrant) {
-  const name = getField(registrant, "Your Full Name", "fullName", "name", "Name");
-  const dbn = getField(registrant, "DBN", "dbn");
-  const school = getField(
+  const name = getField(registrant, "Name", "Your Full Name", "fullName", "name");
+  const school = getField(registrant, "School", "school", "School Name or District Name", "DBN");
+  const sheetStatus = getField(registrant, "Status", "status");
+  const checkedInValue = getField(
     registrant,
-    "School Name or District Name",
-    "schoolNameOrDistrictName",
-    "school",
-    "School",
-  );
-  const attendedValue = getField(
-    registrant,
-    "Attended",
-    "attended",
+    "Checked In",
+    "checkedIn",
     "checkedInAt",
     "Checked In At",
-    "status",
-    "Status",
+    "Attended",
+    "attended",
   );
-  const status = String(
-    isChecked(attendedValue) ? "present" : "absent",
-  ).toLowerCase();
+  const status = isChecked(checkedInValue) ? "present" : "absent";
   const checkedInAt =
+    registrant["Checked In"] ||
+    registrant.checkedIn ||
     registrant.checkedInAt ||
     registrant.CheckedInAt ||
     registrant["Checked In At"] ||
@@ -353,13 +351,15 @@ function normalizeRegistrant(registrant) {
     "";
 
   return {
-    id: String(registrant.id || registrant.ID || [name, dbn, school].filter(Boolean).join("|") || createId()),
+    id: String(
+      registrant.id || registrant.ID || [name, school, sheetStatus].filter(Boolean).join("|") || createId(),
+    ),
     name: String(name || "Unnamed registrant"),
-    dbn: String(dbn || ""),
     school: String(school || ""),
+    sheetStatus: String(sheetStatus || ""),
     status: status === "present" ? "present" : "absent",
     checkedInAt,
-    note: String(registrant.note || ""),
+    note: String(getField(registrant, "Note", "note") || ""),
   };
 }
 
@@ -399,6 +399,14 @@ function renderSummary() {
   elements.totalCount.textContent = state.people.length;
 }
 
+function getSheetStatusText(person) {
+  if (person.sheetStatus) {
+    return person.sheetStatus;
+  }
+
+  return person.status === "present" ? "Present" : "Not checked in";
+}
+
 function getSortedPeople() {
   return [...state.people].sort((a, b) =>
     a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
@@ -417,7 +425,7 @@ function getDuplicateNameSet() {
 
 function formatRegistrantOption(person, duplicateNames) {
   const isDuplicate = duplicateNames.has(normalizeName(person.name));
-  const detail = isDuplicate ? person.dbn || person.school : "";
+  const detail = isDuplicate ? person.school || person.sheetStatus : "";
   const status = person.status === "present" ? " - checked in" : "";
   const suffix = isDuplicate ? ` (${[detail, `ID ${person.id}`].filter(Boolean).join(", ")})` : "";
 
@@ -438,13 +446,13 @@ function updatePerson(id, changes, shouldRender = true) {
 
 function exportCsv() {
   const rows = [
-    ["Date", "Your Full Name", "DBN", "School Name or District Name", "Attended", "Note"],
+    ["Date", "Name", "School", "Status", "Checked In", "Note"],
     ...state.people.map((person) => [
       state.sessionDate,
       person.name,
-      person.dbn,
       person.school,
-      person.status === "present" ? "TRUE" : "FALSE",
+      getSheetStatusText(person),
+      person.status === "present" ? "Yes" : "No",
       person.note,
     ]),
   ];
