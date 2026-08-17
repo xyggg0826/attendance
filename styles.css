@@ -36,7 +36,7 @@ textarea {
 }
 
 button {
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
@@ -155,6 +155,13 @@ h2 {
   padding: 18px;
   background: var(--surface);
   box-shadow: var(--shadow);
+}
+
+.check-in-tools {
+  border: 1px solid rgba(47, 125, 84, 0.25);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(47, 125, 84, 0.07);
 }
 
 .summary-card span {
@@ -288,20 +295,15 @@ h2 {
   gap: 10px;
 }
 
-.attendance-header,
 .attendee-row {
   display: grid;
-  grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 1fr) minmax(100px, 0.7fr) 104px 116px auto minmax(120px, 0.6fr) 40px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: center;
-  gap: 12px;
+  gap: 14px 12px;
 }
 
 .attendance-header {
-  padding: 0 12px 8px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
+  display: none;
 }
 
 .attendee-row {
@@ -312,6 +314,7 @@ h2 {
 }
 
 .person-block {
+  grid-column: span 4;
   min-width: 0;
 }
 
@@ -337,7 +340,31 @@ h2 {
   overflow: hidden;
   color: var(--ink);
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+}
+
+.school-value {
+  grid-column: span 3;
+}
+
+.status-value,
+.checked-in-value {
+  grid-column: span 2;
+}
+
+[data-label]::before,
+.note-field > span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+[data-label]::before {
+  content: attr(data-label);
 }
 
 .checked-in-value {
@@ -346,6 +373,7 @@ h2 {
 }
 
 .check-in-button {
+  grid-column: span 2;
   min-height: 38px;
 }
 
@@ -354,6 +382,7 @@ h2 {
 }
 
 .status-controls {
+  grid-column: span 4;
   display: grid;
   grid-template-columns: repeat(2, 86px);
   gap: 6px;
@@ -383,7 +412,15 @@ h2 {
   min-height: 38px;
 }
 
+.note-field {
+  grid-column: span 5;
+  margin: 0;
+  text-transform: none;
+}
+
 .remove-button {
+  grid-column: 12;
+  grid-row: 1 / span 2;
   width: 40px;
   padding: 0;
   color: var(--red);
@@ -413,7 +450,7 @@ h2 {
   display: none;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .topbar {
     align-items: stretch;
     flex-direction: column;
@@ -427,40 +464,124 @@ h2 {
     grid-template-columns: 1fr;
   }
 
+}
+
+@media (max-width: 520px) {
+  .app-shell {
+    width: min(100% - 24px, 1180px);
+    padding-top: 16px;
+  }
+
+  .topbar {
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .session-controls {
+    width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .summary-card {
+    min-height: 82px;
+    padding: 14px 12px;
+    box-shadow: 0 10px 30px rgba(23, 32, 26, 0.08);
+  }
+
+  .summary-card span {
+    margin-bottom: 8px;
+    font-size: 1.8rem;
+  }
+
+  .summary-card p {
+    font-size: 0.82rem;
+  }
+
+  .roster-panel,
+  .attendance-panel {
+    padding: 14px;
+  }
+
+  .attendance-panel .panel-header {
+    align-items: flex-start;
+  }
+
+  #exportButton {
+    padding-inline: 10px;
+  }
+
+  #registrantSelect {
+    min-height: 52px;
+    font-size: 1.05rem;
+  }
+
   .attendee-row {
-    grid-template-columns: 1fr 40px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+    gap: 14px 10px;
+    padding: 14px;
   }
 
-  .attendance-header {
-    display: none;
+  .person-block {
+    grid-column: 1 / 3;
   }
 
-  .school-value,
-  .status-value,
-  .checked-in-value,
+  .school-value {
+    grid-column: 1 / -1;
+  }
+
+  .status-value {
+    grid-column: 1 / 2;
+  }
+
+  .checked-in-value {
+    grid-column: 2 / -1;
+  }
+
   .check-in-button,
   .status-controls,
-  .note-input {
+  .note-field {
     grid-column: 1 / -1;
+  }
+
+  .check-in-button {
+    min-height: 48px;
   }
 
   .status-controls {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .status-controls button,
+  .note-input {
+    min-height: 44px;
+  }
+
+  .remove-button {
+    grid-column: 3;
+    grid-row: 1;
+    width: 44px;
+  }
+
+  .bulk-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-@media (max-width: 520px) {
-  .app-shell {
-    width: min(100% - 20px, 1180px);
-    padding-top: 16px;
+@media (max-width: 360px) {
+  .summary-card {
+    padding-inline: 9px;
   }
 
-  .summary-grid,
+  .summary-card p {
+    font-size: 0.75rem;
+  }
+
+  .input-row,
   .bulk-actions {
     grid-template-columns: 1fr;
-  }
-
-  .summary-card {
-    min-height: 92px;
   }
 }

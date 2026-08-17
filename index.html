@@ -39,7 +39,17 @@
         <aside class="panel roster-panel" aria-label="Roster management">
           <div class="panel-header">
             <h2>Roster</h2>
-            <button id="clearAllButton" class="icon-button danger" title="Clear roster" type="button">x</button>
+            <button id="clearAllButton" class="icon-button danger" title="Clear roster" aria-label="Clear roster" type="button">&times;</button>
+          </div>
+
+          <div class="tools check-in-tools">
+            <label for="registrantSelect">Find your name</label>
+            <select id="registrantSelect">
+              <option value="">Choose your name</option>
+            </select>
+            <button id="selectedCheckIn" class="selected-check-in-button" type="button">
+              Check in selected
+            </button>
           </div>
 
           <form id="addPersonForm" class="add-form">
@@ -60,16 +70,6 @@
             <button type="submit">Import roster</button>
             <p id="importFeedback" class="form-feedback" role="status"></p>
           </form>
-
-          <div class="tools">
-            <label for="registrantSelect">Registrant</label>
-            <select id="registrantSelect">
-              <option value="">Choose your name</option>
-            </select>
-            <button id="selectedCheckIn" class="selected-check-in-button" type="button">
-              Check in selected
-            </button>
-          </div>
 
           <div class="bulk-actions" aria-label="Bulk attendance actions">
             <button id="markAllPresent" type="button">All present</button>
@@ -105,13 +105,13 @@
 
     <template id="attendeeTemplate">
       <article class="attendee-row">
-        <div class="person-block">
+        <div class="person-block" data-label="Name">
           <strong class="person-name"></strong>
         </div>
 
-        <span class="school-value"></span>
-        <span class="status-value"></span>
-        <span class="checked-in-value"></span>
+        <span class="school-value" data-label="School"></span>
+        <span class="status-value" data-label="Registration status"></span>
+        <span class="checked-in-value" data-label="Checked in"></span>
         <button class="check-in-button" type="button">Check in</button>
 
         <div class="status-controls" role="group" aria-label="Attendance status">
@@ -119,8 +119,11 @@
           <button type="button" data-status="absent">Absent</button>
         </div>
 
-        <input class="note-input" type="text" placeholder="Note" aria-label="Note" />
-        <button class="remove-button" type="button" title="Remove attendee">x</button>
+        <label class="note-field">
+          <span>Note</span>
+          <input class="note-input" type="text" placeholder="Add a note" />
+        </label>
+        <button class="remove-button" type="button" title="Remove attendee" aria-label="Remove attendee">&times;</button>
       </article>
     </template>
 
